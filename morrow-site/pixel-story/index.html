@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f2f0e9" />
+    <meta name="description" content="A little rain: an original 2D pixel-art story from Morrow. Watch a character walk, open an umbrella, and keep going." />
+    <title>Morrow Pixel Stories — A little rain</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="module" src="./page.js"></script>
+  </head>
+  <body>
+    <header class="page-header">
+      <a class="brand landing-link" href="../" aria-label="Morrow landing page"><span aria-hidden="true">✳</span> morrow</a>
+      <span class="edition">PIXEL STORIES / 002</span>
+    </header>
+    <main>
+      <section class="intro" aria-labelledby="story-title">
+        <p class="eyebrow"><span aria-hidden="true"></span> SMALL STORIES. LITTLE POSSIBILITIES.</p>
+        <h1 id="story-title">A little rain.<br /><em>One little step.</em></h1>
+        <p>A quiet walk, a sudden shower, and a reason to keep going.<br />An original story in 2D pixel art.</p>
+      </section>
+      <section class="player-section" aria-label="Watch the pixel-art story">
+        <div class="player-bar"><span><i></i><i></i><i></i></span><span>NOW PLAYING / A LITTLE RAIN</span><span>00:15</span></div>
+        <video id="story-video" controls playsinline preload="metadata" poster="./media/poster.png" aria-label="A little rain: 15-second pixel-art animation">
+          <source src="./media/a-little-rain-2d-pixel.mp4" type="video/mp4" />
+          Your browser does not support embedded video. <a href="./media/a-little-rain-2d-pixel.mp4">Download the story.</a>
+        </video>
+        <div class="player-actions">
+          <p>2D PIXEL ART <span>•</span> 1080 × 1080 <span>•</span> 24 FPS</p>
+          <div><button id="replay" type="button">Replay story <span aria-hidden="true">↻</span></button><a class="download" href="./media/a-little-rain-2d-pixel.mp4" download>Download MP4 <span aria-hidden="true">↗</span></a></div>
+        </div>
+        <p id="player-status" class="status" role="status"></p>
+      </section>
+      <section class="story-notes" aria-labelledby="story-notes-title">
+        <div><p class="eyebrow">THE LITTLE PLOT</p><h2 id="story-notes-title">A few pixels.<br /><em>A whole little story.</em></h2></div>
+        <ol><li><span>01 / THE WALK</span><p>A character walks straight down a tiled park path.</p></li><li><span>02 / THE WEATHER</span><p>Rain arrives. He pauses and takes out his umbrella.</p></li><li><span>03 / THE NEXT STEP</span><p>The umbrella opens. He continues on his way.</p></li></ol>
+      </section>
+      <details class="transcript"><summary>Read the visual description</summary><p>An orange-jacketed pixel character walks toward the viewer along a straight path between trees and benches. Rain begins at about four seconds. He stops, raises a folded umbrella, and opens its green canopy. At nine seconds he resumes walking under the umbrella. The clip includes original rain and footstep sounds, with no speech.</p></details>
+    </main>
+    <footer><a class="brand landing-link" href="../">✳ morrow</a><p>MADE FOR THE MAYBES. <span id="year"></span></p><a href="./media/storyboard.png" target="_blank" rel="noopener">View storyboard ↗</a></footer>
+  </body>
+</html>

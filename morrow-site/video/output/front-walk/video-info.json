@@ -1,0 +1,20 @@
+{
+  "title": "A little rain",
+  "duration_seconds": 15,
+  "width": 1080,
+  "height": 1080,
+  "fps": 24,
+  "frames": 360,
+  "video_codec": "H.264",
+  "audio_codec": "AAC",
+  "story": [
+    "walk straight toward camera on a walkway",
+    "rain begins",
+    "look up",
+    "take out umbrella",
+    "open umbrella",
+    "continue forward"
+  ],
+  "camera": "Centered front-facing perspective view",
+  "assets": "Original procedural 3D voxel meshes and synthesized sound; local licensed fonts"
+}

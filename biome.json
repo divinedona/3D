@@ -1,0 +1,15 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.9/schema.json",
+  "files": {
+    "includes": [
+      "morrow-site/**/*.{js,jsx,mjs,css}",
+      "scripts/**/*.mjs",
+      "pages/**/*.css",
+      "package.json",
+      "vercel.json",
+      "biome.json"
+    ]
+  },
+  "formatter": { "indentStyle": "space" },
+  "assist": { "enabled": false }
+}

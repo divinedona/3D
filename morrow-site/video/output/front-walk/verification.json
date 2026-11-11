@@ -1,0 +1,11 @@
+{
+  "full_video_and_audio_decode": "passed",
+  "duration_seconds": 15.0,
+  "resolution": "1080x1080",
+  "fps": 24,
+  "video": "H.264",
+  "audio": "AAC",
+  "bytes": 2866246,
+  "review_frame": "C:\\Users\\HP\\Desktop\\berd\\morrow-site\\video\\output\\front-walk\\verified-umbrella-frame.png",
+  "walking_review_frame": "C:\\Users\\HP\\Desktop\\berd\\morrow-site\\video\\output\\front-walk\\verified-front-walking-frame.png"
+}
