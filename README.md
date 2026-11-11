@@ -11,7 +11,7 @@ A standalone collection of everything created for this project: the original int
 | `/voxel-story/` | Front-facing 3D voxel walk, rain, and umbrella story |
 | `/voxel-original/` | Original isometric 3D courtyard version |
 | `/pixel-story/` | Separate 2D pixel-art page and story |
-| `/fashion-demo/` | Original 3D wardrobe, personal stylist, sound and tap indicators, and 30-second 60 fps film |
+| `/fashion-demo/` | Original 3D wardrobe, personal stylist, sound and tap indicators, and 15-second 60 fps film at 2× speed |
 
 The existing 3D landing-page source and rendered 3D videos were preserved. No Berd/Tauri desktop backend is required to run this standalone project.
 

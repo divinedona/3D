@@ -1133,19 +1133,20 @@ export default function App() {
               <h2 id="film-title">
                 A morning,
                 <br />
-                <em>in thirty seconds.</em>
+                <em>in fifteen seconds.</em>
               </h2>
               <p>
                 The phone reveal, the conversation, the outfit,
                 <br />
-                and a wardrobe full of possibility.
+                and a wardrobe full of possibility. Now at 2× speed.
               </p>
               <a
                 className="film-download"
-                href={media("atelier-film.mp4")}
+                href={media("atelier-film-2x.mp4")}
                 download
               >
-                <Download size={14} /> Download portrait film <span>MP4</span>
+                <Download size={14} /> Download 2× portrait film{" "}
+                <span>MP4</span>
               </a>
             </div>
             <video
@@ -1153,12 +1154,12 @@ export default function App() {
               playsInline
               preload="metadata"
               poster={media("atelier-poster.jpg")}
-              aria-label="30-second portrait film of the personal-stylist demo"
+              aria-label="15-second portrait film of the personal-stylist demo at 2× speed"
             >
-              <source src={media("atelier-film.mp4")} type="video/mp4" />
+              <source src={media("atelier-film-2x.mp4")} type="video/mp4" />
               <track
                 kind="captions"
-                src={media("atelier-captions.vtt")}
+                src={media("atelier-captions-2x.vtt")}
                 srcLang="en"
                 label="English scene descriptions"
               />

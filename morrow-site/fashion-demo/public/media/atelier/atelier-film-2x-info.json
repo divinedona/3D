@@ -1,0 +1,15 @@
+{
+  "speed": 2,
+  "duration_seconds": 15.0,
+  "frames": 900,
+  "width": 1080,
+  "height": 1920,
+  "fps": 60,
+  "video": "H.264",
+  "audio": "AAC",
+  "audio_mean_dbfs": -19.9,
+  "audio_pitch_preserved": true,
+  "full_video_and_audio_decode": "passed",
+  "captions_retimed": true,
+  "bytes": 4563960
+}

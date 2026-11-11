@@ -2,7 +2,7 @@
 
 Open `/fashion-demo/` on your website, or `npm run dev:fashion` locally at http://127.0.0.1:5185/.
 
-This original concept uses a new wardrobe, Mira's own styling conversation, a sage-and-cream palette, an animated phone, and a 30-second portrait film. The supplied video informed the presentation and pacing. No image crops, photographs, clothing graphics, audio, or branding from it are used by the new demo.
+This original concept uses a new wardrobe, Mira's own styling conversation, a sage-and-cream palette, an animated phone, and a 15-second portrait film at 2× speed. The supplied video informed the presentation and pacing. No image crops, photographs, clothing graphics, audio, or branding from it are used by the new demo.
 
 ## Original visuals
 
@@ -26,13 +26,14 @@ Real clicks use Web Audio for tap, selection, and confirmation tones. Timed tour
 
 ## Film and checks
 
-`public/media/atelier/atelier-film.mp4` is H.264/AAC, 1080 × 1920, 60 fps, 30 seconds, with 1,800 captured frames. The audio is mastered to an audible listening level. The native player has controls and captions; the video download includes audio.
+The page plays and downloads `public/media/atelier/atelier-film-2x.mp4`: H.264/AAC, 1080 × 1920, 60 fps, 15 seconds, with 900 frames. Motion and audio both run at 2× speed, with the audio pitch preserved and captions retimed. The original 30-second, 1,800-frame `atelier-film.mp4` remains the rendering source. The interactive walkthrough still lasts 30 seconds.
 
 1. Start `npm run dev:fashion`.
 2. Run `python scripts/make-atelier-sound.py` (requires NumPy).
 3. Set `FFMPEG_EXE` to your FFmpeg executable; optionally set `BROWSER_EXE`.
 4. Run `npm run render:fashion`.
 5. Run `python scripts/verify-fashion-film.py` to decode the full film, check 60 fps/1,800 frames, measure audio loudness, and create a review storyboard.
+6. Run `python scripts/speed-fashion-film.py` to create the 2× film and captions, then verify the full video/audio decode, 15-second duration, 900 frames, and audible soundtrack.
 
 `npm run check:fashion` tests desktop/mobile interactions and verifies music starts, pauses, and resumes with the sound controls. `node scripts/render-fashion-film.cjs --preview` additionally checks original images and visible tap indicators at their timeline timestamps.
 
