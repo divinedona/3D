@@ -15,6 +15,7 @@ const vite = join(
 for (const config of [
   "morrow-site/vite.config.mjs",
   "morrow-site/pixel-story/vite.config.mjs",
+  "morrow-site/fashion-demo/vite.config.mjs",
 ]) {
   const result = spawnSync(
     process.execPath,
@@ -42,6 +43,11 @@ await cp(
   { recursive: true },
 );
 await cp(join(root, "pages"), output, { recursive: true });
+await cp(
+  join(root, "morrow-site/fashion-demo/dist"),
+  join(output, "fashion-demo"),
+  { recursive: true },
+);
 
 const media = join(output, "videos", "3d");
 await mkdir(media, { recursive: true });

@@ -4,6 +4,7 @@
     "includes": [
       "morrow-site/**/*.{js,jsx,mjs,css}",
       "scripts/**/*.mjs",
+      "scripts/**/*.cjs",
       "pages/**/*.css",
       "package.json",
       "vercel.json",

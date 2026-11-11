@@ -39,25 +39,27 @@ async function walk(directory, relative = "") {
       }
     } else if (item.name.endsWith(".css")) {
       const content = await readFile(path, "utf8");
-      for (const match of content.matchAll(/url\(["']?([^\)"']+)["']?\)/g)) {
+      for (const match of content.matchAll(/url\(["']?([^)"']+)["']?\)/g)) {
         await check(match[1], relativeFile);
       }
     }
   }
 }
 
-for (const page of [
+const pages = [
   "index.html",
   "stories/index.html",
   "pixel-story/index.html",
   "voxel-story/index.html",
   "voxel-original/index.html",
-]) {
+  "fashion-demo/index.html",
+];
+for (const page of pages) {
   await access(join(root, page));
 }
 await walk(root);
 if (missing.length)
   throw new Error(`Missing built assets or links:\n${missing.join("\n")}`);
 console.log(
-  `Verified all five pages and ${references} local asset/link references.`,
+  `Verified all ${pages.length} pages and ${references} local asset/link references.`,
 );

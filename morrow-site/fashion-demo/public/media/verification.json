@@ -1,0 +1,11 @@
+{
+  "full_video_and_audio_decode": "passed",
+  "frames": 720,
+  "duration_seconds": 30.0,
+  "width": 1080,
+  "height": 1920,
+  "fps": 24,
+  "video": "H.264",
+  "audio": "AAC",
+  "bytes": 4215268
+}

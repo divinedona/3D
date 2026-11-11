@@ -1,0 +1,10 @@
+{
+  "duration": 30,
+  "width": 1080,
+  "height": 1920,
+  "fps": 24,
+  "codec": "H.264/AAC",
+  "frames": 720,
+  "source": "Captured from the live demo",
+  "interactionChecks": "passed"
+}
