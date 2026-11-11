@@ -11,7 +11,7 @@ A standalone collection of everything created for this project: the original int
 | `/voxel-story/` | Front-facing 3D voxel walk, rain, and umbrella story |
 | `/voxel-original/` | Original isometric 3D courtyard version |
 | `/pixel-story/` | Separate 2D pixel-art page and story |
-| `/fashion-demo/` | Interactive personal-stylist demo and 30-second portrait film |
+| `/fashion-demo/` | Original 3D wardrobe, personal stylist, sound and tap indicators, and 30-second 60 fps film |
 
 The existing 3D landing-page source and rendered 3D videos were preserved. No Berd/Tauri desktop backend is required to run this standalone project.
 
@@ -52,7 +52,7 @@ The build combines the landing page, gallery, both 3D player pages, 2D page, fon
 - `morrow-site/video/`: 3D renderer, documentation, and both preserved videos under `output/`.
 - `morrow-site/pixel-story/`: independent 2D page, pixel renderer, and video/poster/storyboard under `public/media/`.
 - `pages/`: static story gallery and 3D player pages.
-- `morrow-site/fashion-demo/`: personal-stylist prototype, its independent motion timeline, wardrobe imagery, and 1080 × 1920 film. See its README for rendering and interaction details.
+- `morrow-site/fashion-demo/`: original Atelier clothing renders, personal-stylist prototype, motion/sound timeline, and 1080 × 1920 film. Click Play with sound for music and tap effects. See its README for rendering and interaction details.
 - `scripts/build.mjs`: builds both apps and assembles the complete static site.
 - `src/app/assets/fonts/`: the three local font files and their OFL license notices.
 

@@ -22,25 +22,36 @@ import {
   Signal,
   Sparkles,
   Sun,
+  Volume2,
+  VolumeX,
   Wifi,
   X,
 } from "lucide-react";
-import { duration, steps, storyAt, wardrobe } from "./story.mjs";
+import {
+  duration,
+  steps,
+  storyAt,
+  wardrobe,
+  taps,
+  cameraAt,
+  ease,
+} from "./story.mjs";
+import { playSound, resumeSound } from "./sound.mjs";
 
 const filmMode =
   new URLSearchParams(window.location.search).get("film") === "1";
-const media = (name) => `./media/${name}`;
-const outfitIds = ["top", "skirt", "boots", "bag"];
+const media = (name) => `./media/atelier/${name}`;
+const outfitIds = ["jacket", "knit", "trousers", "sneakers", "tote"];
 const defaultMessages = [
   {
     id: 1,
-    side: "noor",
-    text: "Morning. 24° and dry, so let's do the leopard set today.",
+    side: "mira",
+    text: "Morning. Let's keep today easy: soft sage, a little oat, and your favourite ink trousers.",
   },
   {
     id: 2,
-    side: "noor",
-    text: "Knee-highs, the studded bag, and keep the gold ring on.",
+    side: "mira",
+    text: "The cloud sneakers keep it relaxed. Your walnut tote brings it all together.",
   },
 ];
 const icons = {
@@ -52,7 +63,7 @@ const icons = {
 
 function ProductImage({ item, className = "" }) {
   return (
-    <img className={className} src={media(`${item.id}.webp`)} alt={item.name} />
+    <img className={className} src={media(`${item.id}.png`)} alt={item.name} />
   );
 }
 
@@ -63,13 +74,68 @@ function alignStoryScroll(seconds) {
     scroll.scrollTop =
       seconds >= 26
         ? scroll.scrollHeight
-        : Math.max(0, Math.min(1, (seconds - 8.7) / 2)) * 190;
+        : Math.max(0, Math.min(1, (seconds - 7.6) / 2)) * 190;
   } else {
     scroll.scrollTop =
-      seconds >= 23
+      seconds >= 22.5
         ? 160
-        : Math.max(0, Math.min(1, (seconds - 14.7) / 2)) * 175;
+        : Math.max(0, Math.min(1, (seconds - 12.4) / 2)) * 175;
   }
+}
+
+function updateDemoPointer(seconds) {
+  for (const [index, dot] of [
+    ...document.querySelectorAll(".typing i"),
+  ].entries()) {
+    dot.style.opacity = String(
+      0.4 + (Math.sin(seconds * 7 - index * 0.8) + 1) * 0.3,
+    );
+    dot.style.transform = `translateY(${Math.sin(seconds * 7 - index * 0.8) * 1.4}px)`;
+  }
+  const cursor = document.querySelector(".tap-cursor");
+  const screen = document.querySelector(".phone-screen");
+  if (!cursor || !screen) return;
+  const event = taps.find(
+    (tap) => seconds <= tap.time + 0.5 && seconds >= tap.time - 1.15,
+  );
+  if (!event) {
+    cursor.style.opacity = "0";
+    return;
+  }
+  const target = document.querySelector(
+    `.incoming [data-target="${event.target}"], .phone-dock [data-target="${event.target}"]`,
+  );
+  if (!target) {
+    cursor.style.opacity = "0";
+    return;
+  }
+  const bounds = target.getBoundingClientRect(),
+    frame = screen.getBoundingClientRect();
+  const x =
+    ((bounds.left + bounds.width / 2 - frame.left) * screen.clientWidth) /
+    frame.width;
+  const y =
+    ((bounds.top + bounds.height / 2 - frame.top) * screen.clientHeight) /
+    frame.height;
+  const move = ease((seconds - event.time + 1.15) / 0.85);
+  const px = screen.clientWidth * 0.85 + (x - screen.clientWidth * 0.85) * move;
+  const py =
+    screen.clientHeight * 0.85 + (y - screen.clientHeight * 0.85) * move;
+  cursor.style.opacity = String(
+    seconds < event.time + 0.35
+      ? 0.95
+      : Math.max(0, 1 - (seconds - event.time - 0.35) / 0.15),
+  );
+  cursor.style.transform = `translate(${px}px, ${py}px)`;
+  const delta = seconds - event.time;
+  const dot = cursor.querySelector(".cursor-dot"),
+    ring = cursor.querySelector(".tap-ring");
+  dot.style.transform = `scale(${delta >= 0 && delta < 0.15 ? 0.7 : 1})`;
+  ring.style.opacity = String(delta >= 0 && delta < 0.5 ? 1 - delta / 0.5 : 0);
+  ring.style.transform = `scale(${1 + Math.max(0, delta) * 5})`;
+  for (const pressed of document.querySelectorAll(".demo-pressed"))
+    pressed.classList.remove("demo-pressed");
+  if (delta >= 0 && delta < 0.16) target.classList.add("demo-pressed");
 }
 
 export default function App() {
@@ -87,18 +153,30 @@ export default function App() {
   const [time, setTime] = useState(0);
   const [filmTime, setFilmTime] = useState(0);
   const [occasion, setOccasion] = useState("Everyday");
+  const musicRef = useRef(null);
+  const lastSoundTime = useRef(0);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [manualTap, setManualTap] = useState(null);
   const chatBottom = useRef(null);
   const replyTimer = useRef(null);
   const noticeTimer = useRef(null);
   const stage = storyAt(filmMode ? filmTime : time);
   const displayView = filmMode || tour ? stage.view : view;
-  const displayWearing = filmMode || tour ? stage.time >= 23 : wearing;
-  const showOutfit = !(filmMode || tour) || stage.time >= 8;
+  const displayWearing = filmMode || tour ? stage.time >= 24.1 : wearing;
+  const movieSelected = [
+    "jacket",
+    "knit",
+    "sneakers",
+    ...(stage.time >= 17.8 ? ["trousers"] : []),
+    ...(stage.time >= 19.4 ? ["tote"] : []),
+  ];
+  const displaySelected = filmMode || tour ? movieSelected : selected;
+  const showOutfit = !(filmMode || tour) || stage.time >= 7;
   const displayedMessages =
     filmMode || tour
       ? defaultMessages.slice(
           0,
-          stage.time >= 5.6 ? 2 : stage.time >= 3.8 ? 1 : 0,
+          stage.time >= 5.2 ? 2 : stage.time >= 3.8 ? 1 : 0,
         )
       : messages;
 
@@ -108,6 +186,7 @@ export default function App() {
     window.__setFilmTime = (seconds) => {
       flushSync(() => setFilmTime(seconds));
       alignStoryScroll(seconds);
+      updateDemoPointer(seconds);
     };
     return () => {
       delete window.__setFilmTime;
@@ -140,8 +219,8 @@ export default function App() {
         { id: 3, side: "you", text: "Wearing it ♥" },
         {
           id: 4,
-          side: "noor",
-          text: "Love. Tomorrow looks rainy — we'll plan a cosy layer.",
+          side: "mira",
+          text: "That looks like you. Tomorrow, we can give those blue jeans a moment.",
         },
       ]);
     }
@@ -165,8 +244,70 @@ export default function App() {
   );
 
   useEffect(() => {
-    if (tour) alignStoryScroll(time);
+    if (tour) {
+      alignStoryScroll(time);
+      updateDemoPointer(time);
+    }
+    if (!tour)
+      document.querySelector(".tap-cursor")?.style.setProperty("opacity", "0");
   }, [tour, time]);
+
+  useEffect(() => {
+    if (tour && !filmMode) {
+      if (soundEnabled) {
+        for (const tap of taps)
+          if (tap.time > lastSoundTime.current && tap.time <= time)
+            playSound(tap.kind);
+        for (const at of [3.8, 5.2, 27.1])
+          if (at > lastSoundTime.current && at <= time) playSound("message");
+      }
+      lastSoundTime.current = time;
+    } else musicRef.current?.pause();
+  }, [tour, time, soundEnabled]);
+
+  function beginMusic(at) {
+    lastSoundTime.current = at;
+    if (soundEnabled && musicRef.current) {
+      void resumeSound();
+      musicRef.current.currentTime = at;
+      musicRef.current.volume = 0.65;
+      void musicRef.current
+        .play()
+        .catch(() => toast("Tap Play with sound to start the audio."));
+    }
+  }
+
+  function toggleSound() {
+    const enabled = !soundEnabled;
+    setSoundEnabled(enabled);
+    if (!enabled) musicRef.current?.pause();
+    else {
+      void resumeSound().then(() => playSound("select"));
+      if (tour && musicRef.current) {
+        musicRef.current.currentTime = time;
+        musicRef.current.volume = 0.65;
+        void musicRef.current.play();
+      }
+    }
+  }
+
+  function phoneTap(event) {
+    const button = event.target.closest("button");
+    if (!button || button.disabled || filmMode || tour) return;
+    const screen = event.currentTarget;
+    const rect = screen.getBoundingClientRect();
+    setManualTap({
+      x: ((event.clientX - rect.left) * screen.clientWidth) / rect.width,
+      y: ((event.clientY - rect.top) * screen.clientHeight) / rect.height,
+      id: Date.now(),
+    });
+    const kind = button.dataset.target?.startsWith("item-")
+      ? "select"
+      : button.dataset.target === "wear"
+        ? "success"
+        : "tap";
+    if (soundEnabled) void resumeSound().then(() => playSound(kind));
+  }
 
   function pauseTour() {
     setView(stage.view === "outro" ? "chat" : stage.view);
@@ -208,17 +349,17 @@ export default function App() {
     setDraft("");
     setTyping(true);
     const response = /rain|cold|tomorrow/i.test(text)
-      ? "For rain, keep the boots and add a light jacket. Your off-shoulder top is a lovely option for tomorrow."
+      ? "For rain, keep the sage jacket and switch to the walnut loafers. Your tote has room for a small umbrella."
       : /casual|comfort|jeans/i.test(text)
-        ? "Let's keep it relaxed: the print top, your blue loose jeans, and white sneakers. You can select them in Closet."
+        ? "Try the oat knit, your washed blue jeans, and cloud sneakers. Select them in your closet and make it yours."
         : /work|office|meeting/i.test(text)
-          ? "Try the print top with your blue jeans and boots. Keep the bag simple; the gold ring adds just enough polish."
-          : "I'd build around your leopard top today. Open the outfit for the complete look, or tell me if you're after something more casual.";
+          ? "The sage jacket with ink trousers and walnut loafers is a lovely work edit. Add the daily tote and you are ready."
+          : "I would start with your sage studio jacket today. Open The Olive Edit for all five pieces, or tell me what your day looks like.";
     clearTimeout(replyTimer.current);
     replyTimer.current = setTimeout(() => {
       setMessages((items) => [
         ...items,
-        { id: Date.now(), side: "noor", text: response },
+        { id: Date.now(), side: "mira", text: response },
       ]);
       setTyping(false);
     }, 1100);
@@ -233,18 +374,15 @@ export default function App() {
 
   function startTour() {
     setTime(0);
+    beginMusic(0);
     setTour(true);
   }
 
-  const cameraScales = [1.04, 1.11, 1.18, 1.1, 1.09, 1.14, 1.15, 1.15];
-  const previousScale = cameraScales[Math.max(0, stage.index - 1)];
-  const cameraScale =
-    previousScale +
-    (cameraScales[stage.index] - previousScale) * stage.transition;
+  const camera = cameraAt(stage.time);
   const phoneStyle =
     filmMode || tour
       ? {
-          transform: `rotateY(${Math.sin(stage.time * 0.23) * 4}deg) rotateZ(${Math.sin(stage.time * 0.2) * 0.7}deg) scale(${filmMode ? cameraScale : 1})`,
+          transform: `rotateY(${camera.y}deg) rotateZ(${camera.z}deg) scale(${filmMode ? camera.scale * 1.04 : camera.scale})`,
           opacity: stage.view === "outro" ? 1 - stage.transition : 1,
         }
       : undefined;
@@ -269,39 +407,40 @@ export default function App() {
     );
   }
 
-  function renderView() {
-    if (displayView === "lock")
+  function renderView(targetView = displayView) {
+    if (targetView === "lock")
       return (
         <button
           type="button"
           className="lock-screen"
+          data-target="unlock"
           onClick={() => navigate("chat")}
           aria-label="Unlock the stylist demo"
         >
           <LockKeyhole size={17} />
-          <p>Tuesday, 14 October</p>
-          <h2>7:02</h2>
+          <p>Wednesday, 11 November</p>
+          <h2>9:41</h2>
           <span>
             <Sun size={12} />
             24° · a little sunshine
           </span>
           <div className="lock-bottom">
             <Sparkles size={18} />
-            <p>Your day, already styled.</p>
+            <p>Less deciding. More you.</p>
             <ArrowUp size={16} />
             <small>Tap to begin</small>
           </div>
         </button>
       );
 
-    if (displayView === "chat" || displayView === "outro")
+    if (targetView === "chat" || targetView === "outro")
       return (
         <>
           <div className="app-title">
-            <span className="stylist-avatar">n</span>
+            <span className="stylist-avatar">m</span>
             <div>
               <strong>
-                Noor <span>· Your stylist</span>
+                Mira <span>· Your stylist</span>
               </strong>
               <small>
                 <i /> A little ahead of your day
@@ -320,36 +459,46 @@ export default function App() {
             className="chat-content app-scroll"
             key={filmMode || tour ? stage.index : "chat"}
           >
-            <p className="date-divider">TUESDAY, 14 OCTOBER</p>
+            <p className="date-divider">A LITTLE INSPIRATION FOR TODAY</p>
             {displayedMessages.slice(0, 2).map((message) => (
               <p key={message.id} className={`bubble ${message.side}`}>
                 {message.text}
               </p>
             ))}
-            {(typing || ((filmMode || tour) && stage.time < 8)) && (
-              <div className="typing" role="status" aria-label="Noor is typing">
+            {(typing || ((filmMode || tour) && stage.time < 7)) && (
+              <div className="typing" role="status" aria-label="Mira is typing">
                 <i />
                 <i />
                 <i />
               </div>
             )}
             {showOutfit && (
-              <div className="outfit-chat-card">
+              <div
+                className="outfit-chat-card"
+                style={
+                  filmMode || tour
+                    ? {
+                        opacity: ease((stage.time - 7) / 0.6),
+                        transform: `translateY(${(1 - ease((stage.time - 7) / 0.6)) * 16}px)`,
+                      }
+                    : undefined
+                }
+              >
                 <div className="card-heading">
                   <Sparkles size={12} />
                   <span>FOR TODAY, FOR YOU</span>
                 </div>
-                <strong>Your leopard moment.</strong>
+                <strong>The Olive Edit.</strong>
                 <p>24° · clear skies · {occasion.toLowerCase()}</p>
                 <button
                   type="button"
                   className="model-button"
                   onClick={() => navigate("outfit")}
-                  aria-label="Open your leopard outfit"
+                  aria-label="Open your Olive Edit outfit"
                 >
                   <img
-                    src={media("outfit.webp")}
-                    alt="Complete leopard outfit with a studded skirt, knee-high boots, and brown bag"
+                    src={media("look.png")}
+                    alt="Complete Olive Edit outfit with a studded skirt, knee-high boots, and brown bag"
                   />
                 </button>
                 <div className="item-chips">
@@ -367,6 +516,7 @@ export default function App() {
                   <button
                     type="button"
                     className="secondary"
+                    data-target="open-look"
                     onClick={() => navigate("outfit")}
                   >
                     Open outfit
@@ -391,8 +541,9 @@ export default function App() {
             {(filmMode || tour) && stage.time >= 26 && (
               <>
                 <p className="bubble you">Wearing it ♥</p>
-                <p className="bubble noor">
-                  Love. Tomorrow looks rainy — we'll plan a cosy layer.
+                <p className="bubble mira">
+                  That looks like you. Tomorrow, we can give those blue jeans a
+                  moment.
                 </p>
               </>
             )}
@@ -408,13 +559,13 @@ export default function App() {
               <Plus size={20} />
             </button>
             <label className="sr-only" htmlFor="stylist-message">
-              Message Noor
+              Message Mira
             </label>
             <input
               id="stylist-message"
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
-              placeholder="Chat with Noor"
+              placeholder="Chat with Mira"
               maxLength={300}
             />
             <button
@@ -429,7 +580,7 @@ export default function App() {
         </>
       );
 
-    if (displayView === "outfit")
+    if (targetView === "outfit")
       return (
         <>
           <div className="workspace-heading">
@@ -454,19 +605,20 @@ export default function App() {
           <div className="outfit-detail app-scroll">
             <div className="detail-photo">
               <img
-                src={media("outfit.webp")}
-                alt="Your complete leopard outfit"
+                src={media("look.png")}
+                alt="Your complete Olive Edit outfit"
               />
               <span className="photo-label">
-                <Sparkles size={11} /> Styled by Noor
+                <Sparkles size={11} /> Styled by Mira
               </span>
             </div>
             <p className="tiny-label">YOUR MORNING, SORTED</p>
-            <h2>Leopard Low-Rise</h2>
+            <h2>The Olive Edit</h2>
             <p className="muted">Everyday · 22–26°C</p>
             <button
               type="button"
               className="primary wear-button"
+              data-target="wear"
               onClick={wear}
             >
               {displayWearing && <Check size={15} />}
@@ -478,10 +630,10 @@ export default function App() {
                 className="secondary"
                 onClick={() => {
                   navigate("chat");
-                  toast("Ask Noor about this look in chat.");
+                  toast("Ask Mira about this look in chat.");
                 }}
               >
-                Ask Noor
+                Ask Mira
               </button>
               <button type="button" className="secondary" onClick={saveLook}>
                 {saved ? "Saved to lookbook" : "Add to lookbook"}
@@ -500,7 +652,7 @@ export default function App() {
         </>
       );
 
-    if (displayView === "closet") {
+    if (targetView === "closet") {
       const filtered = wardrobe.filter(
         (item) =>
           (category === "All" || category === item.category) &&
@@ -559,15 +711,16 @@ export default function App() {
               {filtered.map((item) => (
                 <button
                   type="button"
-                  className={`closet-item ${selected.includes(item.id) ? "selected" : ""}`}
+                  className={`closet-item ${displaySelected.includes(item.id) ? "selected" : ""}`}
                   key={item.id}
+                  data-target={`item-${item.id}`}
                   onClick={() => toggleItem(item.id)}
                   aria-label={item.name}
-                  aria-pressed={selected.includes(item.id)}
+                  aria-pressed={displaySelected.includes(item.id)}
                 >
                   <div>
                     <ProductImage item={item} />
-                    {selected.includes(item.id) && (
+                    {displaySelected.includes(item.id) && (
                       <span className="selected-tick">
                         <Check size={10} />
                       </span>
@@ -582,26 +735,22 @@ export default function App() {
             )}
           </div>
           <div className="closet-selection">
-            <span>{selected.length} pieces selected</span>
+            <span>{displaySelected.length} pieces selected</span>
             <button
               type="button"
               className="primary"
-              onClick={() => {
-                navigate("chat");
-                setDraft(
-                  `Help me style ${selected.map((id) => wardrobe.find((item) => item.id === id).name).join(", ")}.`,
-                );
-              }}
-              disabled={!selected.length}
+              data-target="view-edit"
+              onClick={() => navigate("outfit")}
+              disabled={!displaySelected.length}
             >
-              Ask Noor <ArrowRight size={12} />
+              View edit <ArrowRight size={12} />
             </button>
           </div>
         </>
       );
     }
 
-    if (displayView === "lookbook")
+    if (targetView === "lookbook")
       return (
         <>
           <div className="workspace-heading">
@@ -622,10 +771,10 @@ export default function App() {
                 onClick={() => navigate("outfit")}
               >
                 <img
-                  src={media("outfit.webp")}
-                  alt="Your saved leopard outfit"
+                  src={media("look.png")}
+                  alt="Your saved Olive Edit outfit"
                 />
-                <strong>Leopard Low-Rise</strong>
+                <strong>The Olive Edit</strong>
                 <span>
                   Everyday · warm weather <ChevronRight size={12} />
                 </span>
@@ -663,7 +812,7 @@ export default function App() {
         <div className="profile-content app-scroll">
           <div className="profile-avatar">M</div>
           <h3>Good morning, you.</h3>
-          <p>Noor's getting to know your everyday.</p>
+          <p>Mira's getting to know your everyday.</p>
           <div className="profile-panel">
             <span>Today's occasion</span>
             <div>
@@ -693,7 +842,7 @@ export default function App() {
             <strong>{wearing ? "Ready to wear" : "Waiting for you"}</strong>
           </div>
           <p className="concept-note">
-            This is an interactive concept. Noor's replies are scripted; your
+            This is an interactive concept. Mira's replies are scripted; your
             choices stay in this visit.
           </p>
         </div>
@@ -702,11 +851,28 @@ export default function App() {
   }
 
   return (
-    <div className={`studio-page ${filmMode ? "film-mode" : ""}`}>
+    <div
+      className={`studio-page ${filmMode ? "film-mode" : ""} ${tour ? "tour-running" : ""}`}
+    >
+      {!filmMode && (
+        <audio
+          ref={musicRef}
+          src={media("atelier-music.mp3")}
+          preload="auto"
+          aria-label="Walkthrough soundtrack"
+        >
+          <track
+            kind="captions"
+            src={media("atelier-captions.vtt")}
+            srcLang="en"
+            label="Music and sound descriptions"
+          />
+        </audio>
+      )}
       {!filmMode && (
         <header className="studio-header">
           <a className="studio-brand" href="../">
-            ✳ morrow<span>/ studio</span>
+            ✳ morrow<span>/ atelier</span>
           </a>
           <nav>
             <a href="/stories/">
@@ -722,17 +888,18 @@ export default function App() {
               <span /> A LITTLE AHEAD OF YOUR DAY
             </p>
             <h1>
-              Your day.
+              Less deciding.
               <br />
-              <em>Already styled.</em>
+              <em>More you.</em>
             </h1>
             <p className="editorial-copy">
-              A stylist who knows your wardrobe.
-              <br />A morning that feels a little more you.
+              Thoughtfully designed. Entirely your own.
+              <br />
+              An original wardrobe, and a calmer morning.
             </p>
             <div className="editorial-actions">
               <button type="button" className="tour-start" onClick={startTour}>
-                <Play size={14} fill="currentColor" /> Watch the walkthrough
+                <Play size={14} fill="currentColor" /> Play with sound
                 <span>30s</span>
               </button>
               <a className="video-link" href="#film">
@@ -740,14 +907,14 @@ export default function App() {
               </a>
             </div>
             <div className="editorial-note">
-              <div className="note-mark">n</div>
+              <div className="note-mark">m</div>
               <div>
-                <strong>Meet Noor.</strong>
-                <p>Your closet, with a fresh perspective.</p>
+                <strong>Meet Mira.</strong>
+                <p>A little taste. A little less effort.</p>
               </div>
             </div>
             <p className="prototype-note">
-              An interactive concept inspired by your reference.
+              Original 3D wardrobe designs. A new story, from scratch.
             </p>
           </div>
         )}
@@ -757,7 +924,7 @@ export default function App() {
         >
           {filmMode && (
             <div className="film-wordmark">
-              morrow <span>studio</span>
+              morrow <span>atelier</span>
             </div>
           )}
           <div className="phone-shadow" />
@@ -765,9 +932,13 @@ export default function App() {
             className={`phone-device ${displayView === "lock" ? "locked" : ""}`}
             style={phoneStyle}
           >
-            <div className="phone-screen">
+            <div
+              className="phone-screen"
+              onClickCapture={phoneTap}
+              role="presentation"
+            >
               <div className="status-bar">
-                <strong>7:02</strong>
+                <strong>9:41</strong>
                 <div>
                   <Signal size={12} fill="currentColor" />
                   <Wifi size={12} />
@@ -775,13 +946,31 @@ export default function App() {
                 </div>
               </div>
               <div className="dynamic-island" />
+              {(filmMode || tour) &&
+                stage.index > 0 &&
+                stage.transition < 1 &&
+                steps[stage.index - 1].view !== displayView && (
+                  <div
+                    className={`phone-app outgoing ${steps[stage.index - 1].view === "lock" ? "is-lock" : ""}`}
+                    aria-hidden="true"
+                    inert
+                    style={{
+                      opacity: 1 - stage.transition,
+                      transform: `translateX(${-28 * stage.transition}px)`,
+                    }}
+                  >
+                    {renderView(steps[stage.index - 1].view)}
+                  </div>
+                )}
               <div
-                className="phone-app"
+                className={`phone-app incoming ${displayView === "lock" ? "is-lock" : ""}`}
                 style={
-                  filmMode || tour
+                  (filmMode || tour) &&
+                  (stage.index === 0 ||
+                    steps[stage.index - 1].view !== displayView)
                     ? {
                         opacity: stage.transition,
-                        transform: `translateY(${(1 - stage.transition) * 12}px)`,
+                        transform: `translateX(${(1 - stage.transition) * 28}px)`,
                       }
                     : undefined
                 }
@@ -803,10 +992,11 @@ export default function App() {
                       }
                       aria-label={
                         name === "chat"
-                          ? "Chat with Noor"
+                          ? "Chat with Mira"
                           : name[0].toUpperCase() + name.slice(1)
                       }
                       aria-current={displayView === name ? "page" : undefined}
+                      data-target={`nav-${name}`}
                       onClick={() => navigate(name)}
                     >
                       <Icon size={19} strokeWidth={2.2} />
@@ -816,6 +1006,18 @@ export default function App() {
                 </nav>
               )}
               <div className="home-indicator" />
+              <div className="tap-cursor" aria-hidden="true">
+                <span className="cursor-dot" />
+                <span className="tap-ring" />
+              </div>
+              {manualTap && (
+                <span
+                  className="manual-ripple"
+                  key={manualTap.id}
+                  style={{ left: manualTap.x, top: manualTap.y }}
+                  aria-hidden="true"
+                />
+              )}
               {notice && (
                 <div className="phone-toast" role="status">
                   <Check size={13} />
@@ -839,7 +1041,7 @@ export default function App() {
               <p>
                 morrow<span>✳</span>
               </p>
-              <h2>Your day. Already styled.</h2>
+              <h2>A little more you.</h2>
               <small>YOUR PERSONAL STYLIST</small>
             </div>
           )}
@@ -870,6 +1072,7 @@ export default function App() {
                     return;
                   }
                   if (!tour && time >= duration) setTime(0);
+                  beginMusic(time >= duration ? 0 : time);
                   setTour(true);
                 }}
               >
@@ -887,6 +1090,15 @@ export default function App() {
             <div className="timeline" aria-hidden="true">
               <span style={{ width: `${(time / duration) * 100}%` }} />
             </div>
+            <button
+              type="button"
+              className="sound-toggle"
+              onClick={toggleSound}
+              aria-pressed={soundEnabled}
+            >
+              {soundEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
+              {soundEnabled ? "Sound on" : "Sound off"}
+            </button>
             <div className="scene-shortcuts">
               {steps
                 .filter((_, index) => [0, 2, 3, 4].includes(index))
@@ -896,6 +1108,7 @@ export default function App() {
                     key={step.start}
                     onClick={() => {
                       setTime(step.start);
+                      beginMusic(step.start);
                       setTour(true);
                     }}
                   >
@@ -929,7 +1142,7 @@ export default function App() {
               </p>
               <a
                 className="film-download"
-                href={media("morrow-studio-film.mp4")}
+                href={media("atelier-film.mp4")}
                 download
               >
                 <Download size={14} /> Download portrait film <span>MP4</span>
@@ -939,13 +1152,13 @@ export default function App() {
               controls
               playsInline
               preload="metadata"
-              poster={media("film-poster.jpg")}
+              poster={media("atelier-poster.jpg")}
               aria-label="30-second portrait film of the personal-stylist demo"
             >
-              <source src={media("morrow-studio-film.mp4")} type="video/mp4" />
+              <source src={media("atelier-film.mp4")} type="video/mp4" />
               <track
                 kind="captions"
-                src={media("film-captions.vtt")}
+                src={media("atelier-captions.vtt")}
                 srcLang="en"
                 label="English scene descriptions"
               />

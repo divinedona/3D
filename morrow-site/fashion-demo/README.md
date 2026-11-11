@@ -1,36 +1,39 @@
-# Morrow Studio — Personal stylist concept
+# Morrow Atelier — The Olive Edit
 
-Open `/fashion-demo/` on the deployed site. Locally, `npm run dev:fashion` serves this page at `http://127.0.0.1:5185/`.
+Open `/fashion-demo/` on your website, or `npm run dev:fashion` locally at http://127.0.0.1:5185/.
 
-This independent page follows the supplied fashion-assistant reference: a sunrise lock screen, stylist chat, a complete leopard outfit, outfit details, closet selection, wearing confirmation, and a brand finish. The previous landing page, 3D clips, and 2D story remain intact.
+This original concept uses a new wardrobe, Mira's own styling conversation, a sage-and-cream palette, an animated phone, and a 30-second portrait film. The supplied video informed the presentation and pacing. No image crops, photographs, clothing graphics, audio, or branding from it are used by the new demo.
 
-## What works
+## Original visuals
 
-- Chat with Noor: send a message and receive a scripted reply, including casual, work, and rainy-weather suggestions.
-- Open the outfit, mark it worn, save it, and find it in the lookbook.
-- Search eight wardrobe pieces, filter by category, toggle selections, and ask Noor about the selected pieces.
-- Change the occasion in the profile.
-- Play, pause, restart, or jump between the walkthrough scenes.
-- Play or download the pre-rendered 30-second portrait MP4, with scene captions and original synthesized audio.
+`asset-studio.mjs` creates the clothing from Three.js geometry, procedural textile textures, original colours, and studio lights. The nine PNG renders in `public/media/atelier/` show the full sculptural outfit and eight garments/accessories. Their provenance is recorded in `provenance.json`.
 
-This is a local interactive prototype. Replies are scripted and choices last for the current visit. It does not connect to a model, fetch real weather, generate virtual try-ons, or store wardrobe accounts.
+Re-render with `node scripts/render-atelier-assets.cjs` while the fashion development server is running. An installed Chrome/Edge browser or Playwright Chromium is required.
 
-## Visuals and motion
+## Motion and interactions
 
-React renders working phone screens. CSS creates the metallic phone edge, screen glass, dynamic island, sunset wallpaper, dock, depth, and shadows. `story.mjs` defines the 30-second timeline. A deterministic film view at `?film=1` lets the renderer capture the same screens at exact time values. This route uses CSS perspective; it does not require Three.js.
+The phone camera follows continuous eased keyframes. Actual screen changes retain an outgoing view while the next view slides and fades in. Outfit reveal, typing dots, tap movement, press feedback, expanding tap rings, and garment checkmarks are animated. The same timeline drives the browser and captured film.
 
-The outfit and garment photographs are cropped from the user-provided `WhatsApp Video 2026-10-12 at 14.57.36.mp4` to match the reference. The original video, its text frames, branding, and soundtrack are not included. Layouts, interface elements, animation code, and film soundtrack were created for this demo. The local fonts use the included OFL notices.
+The timeline shows the morning chat, opens The Olive Edit, browses the wardrobe, selects the trousers and tote, opens the outfit again, confirms Wear today, and finishes in chat.
 
-## Video and QA
+You can send a message to Mira, search/filter the wardrobe, select pieces, wear/save the edit, view your lookbook, and change the occasion. Replies are scripted and choices last for the current visit.
 
-`public/media/morrow-studio-film.mp4` is H.264/AAC, 30 seconds, 1080 × 1920, and 24 fps. Vercel serves it directly; Vercel does not run a browser or FFmpeg during deployment.
+## Sound
 
-To reproduce it locally:
+Click **Play with sound** to start the walkthrough and its music. Browsers allow audible playback after this user gesture. **Sound on/off** controls live music and effects; pausing or leaving the tour pauses the music.
 
-1. Run `npm ci` and `npm run dev:fashion` in a terminal.
-2. Use an installed Chrome/Edge browser, or run `npx playwright install chromium`.
-3. Generate the sound: `python scripts/make-fashion-sound.py` (requires NumPy).
-4. Set `FFMPEG_EXE` to an FFmpeg executable. Set `BROWSER_EXE` only if needed; Windows Chrome and Edge are found automatically.
-5. Run `npm run render:fashion` in another terminal. It checks the interactions, captures 720 frames from the live demo, and writes the MP4 and poster.
+Real clicks use Web Audio for tap, selection, and confirmation tones. Timed tour taps play the same kinds of sound. `timeline.json` synchronizes visible taps and the exported soundtrack. `make-atelier-sound.py` synthesizes original music and sound effects; there is no reference-video audio.
 
-`FASHION_URL` can override the local URL for checks or rendering. `npm run check:fashion` runs desktop/mobile browser checks without rendering. These verify wearing/saving an outfit, lookbook retrieval, search, empty search results, filtering, selection, chat replies, mobile overflow, and walkthrough pause. Captured review images stay in ignored `.scratch/fashion-qa/`.
+## Film and checks
+
+`public/media/atelier/atelier-film.mp4` is H.264/AAC, 1080 × 1920, 60 fps, 30 seconds, with 1,800 captured frames. The audio is mastered to an audible listening level. The native player has controls and captions; the video download includes audio.
+
+1. Start `npm run dev:fashion`.
+2. Run `python scripts/make-atelier-sound.py` (requires NumPy).
+3. Set `FFMPEG_EXE` to your FFmpeg executable; optionally set `BROWSER_EXE`.
+4. Run `npm run render:fashion`.
+5. Run `python scripts/verify-fashion-film.py` to decode the full film, check 60 fps/1,800 frames, measure audio loudness, and create a review storyboard.
+
+`npm run check:fashion` tests desktop/mobile interactions and verifies music starts, pauses, and resumes with the sound controls. `node scripts/render-fashion-film.cjs --preview` additionally checks original images and visible tap indicators at their timeline timestamps.
+
+Vercel receives pre-rendered images and video through `npm run build`. It does not need a browser, Python, a model API, or FFmpeg. Earlier assets remain in the repository as historical artifacts; the current page references only the new `media/atelier/` collection.

@@ -1,0 +1,52 @@
+{
+  "music": {
+    "rms_dbfs": -19.240331844763134,
+    "peak_dbfs": -4.16884773538311
+  },
+  "film_mix": {
+    "rms_dbfs": -19.19926932021842,
+    "peak_dbfs": -4.16884773538311
+  },
+  "tap_events": [
+    {
+      "time": 2.65,
+      "target": "unlock",
+      "kind": "tap"
+    },
+    {
+      "time": 10.55,
+      "target": "open-look",
+      "kind": "tap"
+    },
+    {
+      "time": 15.85,
+      "target": "nav-closet",
+      "kind": "tap"
+    },
+    {
+      "time": 17.8,
+      "target": "item-trousers",
+      "kind": "select"
+    },
+    {
+      "time": 19.4,
+      "target": "item-tote",
+      "kind": "select"
+    },
+    {
+      "time": 22.05,
+      "target": "view-edit",
+      "kind": "tap"
+    },
+    {
+      "time": 24.1,
+      "target": "wear",
+      "kind": "success"
+    },
+    {
+      "time": 25.7,
+      "target": "nav-chat",
+      "kind": "tap"
+    }
+  ]
+}

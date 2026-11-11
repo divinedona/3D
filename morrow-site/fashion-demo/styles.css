@@ -23,6 +23,121 @@
   background: #eae5dc;
   font-synthesis: none;
 }
+.tap-cursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  z-index: 20;
+  pointer-events: none;
+  will-change: transform;
+}
+.cursor-dot {
+  position: absolute;
+  left: -6px;
+  top: -6px;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid #748d69;
+  background: #fffffff2;
+  border-radius: 50%;
+  box-shadow: 0 2px 7px #20331b40;
+}
+.tap-ring {
+  position: absolute;
+  left: -10px;
+  top: -10px;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #6b9762;
+  border-radius: 50%;
+  opacity: 0;
+}
+.manual-ripple {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  margin: -10px;
+  border: 1px solid #6b9762;
+  border-radius: 50%;
+  z-index: 20;
+  pointer-events: none;
+  animation: touch-ripple 0.5s ease-out both;
+}
+@keyframes touch-ripple {
+  from {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  to {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+.phone-app.outgoing {
+  position: absolute;
+  top: 36px;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+}
+.phone-app.is-lock {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+}
+.tour-running .phone-app {
+  animation: none;
+}
+.phone-device {
+  transition: opacity 0.3s;
+}
+.sound-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #bec8b4;
+  background: #e7eadf;
+  border-radius: 20px;
+  padding: 8px 12px;
+  font-size: 9px;
+  white-space: nowrap;
+}
+.primary {
+  background: #476347;
+}
+.primary:hover {
+  background: #354f35;
+}
+.categories button.active {
+  background: #476347;
+}
+.closet-item.selected > div {
+  border-color: #608357;
+  box-shadow: 0 0 0 1px #60835711;
+}
+.selected-tick,
+.send-button,
+.bubble.you {
+  background: #476347;
+}
+.closet-item > div {
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s;
+}
+.demo-pressed {
+  transform: scale(0.97);
+}
+.model-button img,
+.detail-photo > img {
+  object-fit: cover;
+}
+.film-mode .closet-item > div {
+  transition: none;
+}
 * {
   box-sizing: border-box;
 }
@@ -1441,4 +1556,39 @@ em {
   .phone-device {
     transform: none;
   }
+}
+
+/* Camera and capture frames are driven by one continuous timeline. */
+.phone-device {
+  transition: opacity 0.3s;
+}
+.tour-running .phone-app {
+  animation: none;
+}
+.primary {
+  background: #476347;
+}
+.primary:hover {
+  background: #354f35;
+}
+.categories button.active {
+  background: #476347;
+}
+.closet-item.selected > div {
+  border-color: #608357;
+  box-shadow: 0 0 0 1px #60835711;
+}
+.selected-tick,
+.send-button,
+.bubble.you {
+  background: #476347;
+}
+.model-button img,
+.detail-photo > img {
+  object-fit: contain;
+}
+.film-mode .phone-device,
+.film-mode .phone-app,
+.film-mode .closet-item > div {
+  transition: none;
 }
